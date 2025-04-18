@@ -104,7 +104,7 @@ const FrameTemplatesSidebar: React.FC<FrameTemplatesSidebarProps> = ({
   onSelectTemplate 
 }) => {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden h-[calc(100vh-140px)]">
+    <div className="h-full bg-white overflow-hidden flex flex-col">
       <div className="p-3 border-b border-gray-200">
         <div className="flex items-center mb-3">
           <LayoutTemplate className="h-5 w-5 text-[#10b981] mr-2" />
@@ -119,7 +119,7 @@ const FrameTemplatesSidebar: React.FC<FrameTemplatesSidebarProps> = ({
         </div>
       </div>
       
-      <div className="p-3 overflow-y-auto h-[calc(100%-68px)]">
+      <div className="p-3 overflow-y-auto flex-grow">
         <div className="grid grid-cols-1 gap-4">
           {frameTemplates.map((template) => (
             <div key={template.id} className="space-y-1">

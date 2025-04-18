@@ -185,6 +185,31 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     } else if (type === "solid") {
       return { backgroundColor: value };
     } else if (type === "gradient") {
+      if (value.startsWith('from-')) {
+        // For Tailwind gradients, we need to convert to CSS gradients
+        const colors = value.match(/from-\[(.*?)\]|from-(.*?) |to-\[(.*?)\]|to-(.*?)$/g);
+        if (colors) {
+          const fromColorMatch = colors.find(c => c.startsWith('from-'));
+          const toColorMatch = colors.find(c => c.startsWith('to-'));
+          
+          let fromColor = '#f5f0e8';
+          let toColor = '#e6d9c2';
+          
+          if (fromColorMatch) {
+            fromColor = fromColorMatch.includes('[') 
+              ? fromColorMatch.match(/from-\[(.*?)\]/)?.[1] || fromColor 
+              : `#${fromColorMatch.replace('from-', '')}`;
+          }
+          
+          if (toColorMatch) {
+            toColor = toColorMatch.includes('[') 
+              ? toColorMatch.match(/to-\[(.*?)\]/)?.[1] || toColor 
+              : `#${toColorMatch.replace('to-', '')}`;
+          }
+          
+          return { background: `linear-gradient(to right, ${fromColor}, ${toColor})` };
+        }
+      }
       return { background: `linear-gradient(to right, #f5f0e8, #e6d9c2)` };
     } else {
       return { backgroundImage: `url(${value})`, backgroundSize: 'cover', backgroundPosition: 'center' };
@@ -324,23 +349,21 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden h-[calc(100vh-140px)] flex flex-col">
-      {/* Toolbar */}
-      <div className="p-3 border-b border-gray-200 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Tabs defaultValue="view" className="w-56">
-            <TabsList className="w-full">
-              <TabsTrigger value="view" className="text-xs flex-1">
-                View
-              </TabsTrigger>
-              <TabsTrigger value="edit" className="text-xs flex-1">
-                Edit
-              </TabsTrigger>
-              <TabsTrigger value="export" className="text-xs flex-1">
-                Export
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+    <div className="w-full h-full flex items-center justify-center">
+      <div
+        id="screenshot-canvas"
+        className="bg-white shadow-md rounded-lg"
+        style={{
+          ...getBackgroundStyle(),
+          maxWidth: "900px",
+          width: "100%",
+          transform: `scale(${zoomLevel / 100})`,
+          transformOrigin: "center center",
+          transition: "transform 0.2s ease-out"
+        }}
+      >
+        {/* Canvas header with zoom controls */}
+        <div className="p-3 border-b border-gray-200 flex justify-between items-center">
           <div className="flex items-center gap-1">
             <TooltipProvider>
               <Tooltip>
@@ -367,116 +390,69 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
               </Tooltip>
             </TooltipProvider>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs px-2 py-0 h-6">Zoom: {zoomLevel}%</Badge>
-          <Button variant="ghost" size="icon" className="h-8 w-8"
-            onClick={() => setZoomLevel(Math.min(zoomLevel + 10, 200))}>
-            <ZoomIn className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8"
-            onClick={() => setZoomLevel(Math.max(zoomLevel - 10, 50))}>
-            <ZoomOut className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      
-      {/* Canvas */}
-      <div className="flex-grow overflow-auto p-6 flex items-center justify-center">
-        <div
-          id="screenshot-canvas"
-          className="bg-white rounded-lg shadow-md overflow-hidden"
-          style={{
-            ...getBackgroundStyle(),
-            maxWidth: "800px",
-            width: "100%",
-            transform: `scale(${zoomLevel / 100})`,
-            transformOrigin: "center center",
-            transition: "transform 0.2s ease-out"
-          }}
-        >
-          {/* Content area */}
-          <div className="p-10 relative">
-            {editorState.image ? (
-              <div>
-                <div 
-                  style={{ 
-                    ...getFrameStyle(),
-                    boxShadow: shadowStyle,
-                  }}
-                >
-                  {getBrowserChrome()}
-                  <div className={editorState.frameTemplate === "browser" || editorState.frameTemplate === "mac" ? "p-0" : "p-0"}>
-                    {getImageContent()}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <DropZone onFileUpload={handleFileUpload} />
-                
-                <div className="flex mt-4 gap-2 justify-center">
-                  <Dialog open={websiteModalOpen} onOpenChange={setWebsiteModalOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="flex gap-2 items-center">
-                        <Globe className="h-4 w-4" />
-                        <span>Capture Website</span>
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <WebsiteInputModal 
-                        onCapture={handleWebsiteCapture} 
-                        onCancel={() => setWebsiteModalOpen(false)} 
-                      />
-                    </DialogContent>
-                  </Dialog>
-                  
-                  <Button variant="outline" className="flex gap-2 items-center"
-                    onClick={() => onImageUpload(mockScreenshot)}>
-                    <ImageIcon className="h-4 w-4" />
-                    <span>Use Sample Image</span>
-                  </Button>
-                </div>
-              </div>
-            )}
+          
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs px-2 py-0 h-6">Zoom: {zoomLevel}%</Badge>
+            <Button variant="ghost" size="icon" className="h-8 w-8"
+              onClick={() => setZoomLevel(Math.min(zoomLevel + 10, 200))}>
+              <ZoomIn className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"
+              onClick={() => setZoomLevel(Math.max(zoomLevel - 10, 50))}>
+              <ZoomOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
-      </div>
-      
-      {/* Bottom toolbar */}
-      <div className="p-3 border-t border-gray-200 flex items-center justify-between">
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" onClick={onReset} className="flex items-center gap-1">
-            <RotateCcw className="h-4 w-4" />
-            <span>Reset</span>
-          </Button>
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
-            <Crop className="h-4 w-4" />
-            <span>Crop</span>
-          </Button>
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
-            <Maximize className="h-4 w-4" />
-            <span>Fit</span>
-          </Button>
-        </div>
-        <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1"
-            onClick={handleAutoEnhance}
-          >
-            <Wand2 className="h-4 w-4 text-[#10b981]" />
-            <span>Auto Enhance</span>
-          </Button>
-          <Button 
-            size="sm" 
-            className="flex items-center gap-1 bg-[#10b981] hover:bg-[#0d9669] text-white"
-            onClick={handleExport}
-          >
-            <Download className="h-4 w-4" />
-            <span>Export</span>
-          </Button>
+        
+        {/* Content area */}
+        <div className="p-10 relative">
+          {editorState.image ? (
+            <div>
+              <div 
+                style={{ 
+                  ...getFrameStyle(),
+                  boxShadow: shadowStyle,
+                  borderRadius: `${editorState.border.radius}px`,
+                  overflow: "hidden"
+                }}
+              >
+                {getBrowserChrome()}
+                <div>
+                  {getImageContent()}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <DropZone onFileUpload={handleFileUpload} />
+              
+              <div className="flex mt-4 gap-2 justify-center">
+                <Dialog open={websiteModalOpen} onOpenChange={setWebsiteModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex gap-2 items-center">
+                      <Globe className="h-4 w-4" />
+                      <span>Capture Website</span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <WebsiteInputModal 
+                      onCapture={handleWebsiteCapture} 
+                      onCancel={() => setWebsiteModalOpen(false)} 
+                    />
+                  </DialogContent>
+                </Dialog>
+                
+                <Button 
+                  variant="outline" 
+                  className="flex gap-2 items-center"
+                  onClick={() => onImageUpload(mockScreenshot)}
+                >
+                  <ImageIcon className="h-4 w-4" />
+                  <span>Use Sample Image</span>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -143,7 +143,7 @@ const ControlsSidebar: React.FC<ControlsSidebarProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden h-[calc(100vh-140px)] flex flex-col">
+    <div className="h-full bg-white overflow-hidden flex flex-col">
       {/* Controls header */}
       <div className="border-b border-gray-200 p-3 flex justify-between items-center">
         <div className="flex items-center">
