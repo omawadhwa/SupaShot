@@ -185,35 +185,64 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     } else if (type === "solid") {
       return { backgroundColor: value };
     } else if (type === "gradient") {
-      if (value.startsWith('from-')) {
-        // For Tailwind gradients, we need to convert to CSS gradients
-        const colors = value.match(/from-\[(.*?)\]|from-(.*?) |to-\[(.*?)\]|to-(.*?)$/g);
-        if (colors) {
-          const fromColorMatch = colors.find(c => c.startsWith('from-'));
-          const toColorMatch = colors.find(c => c.startsWith('to-'));
-          
-          let fromColor = '#f5f0e8';
-          let toColor = '#e6d9c2';
-          
-          if (fromColorMatch) {
-            fromColor = fromColorMatch.includes('[') 
-              ? fromColorMatch.match(/from-\[(.*?)\]/)?.[1] || fromColor 
-              : `#${fromColorMatch.replace('from-', '')}`;
+      // For Tailwind-format gradients, extract and convert to CSS
+      if (value.includes('from-') || value.includes('to-')) {
+        let fromColor = '#f5f0e8';
+        let toColor = '#e6d9c2';
+        
+        // Extract from color
+        if (value.includes('from-[')) {
+          const fromMatch = value.match(/from-\[(.*?)\]/);
+          if (fromMatch && fromMatch[1]) {
+            fromColor = fromMatch[1];
           }
-          
-          if (toColorMatch) {
-            toColor = toColorMatch.includes('[') 
-              ? toColorMatch.match(/to-\[(.*?)\]/)?.[1] || toColor 
-              : `#${toColorMatch.replace('to-', '')}`;
+        } else if (value.includes('from-')) {
+          const fromMatch = value.match(/from-([a-zA-Z0-9-]+)/);
+          if (fromMatch && fromMatch[1]) {
+            // Handle Tailwind color classes like 'from-blue-100'
+            if (fromMatch[1].includes('blue')) fromColor = '#dbeafe';
+            else if (fromMatch[1].includes('pink')) fromColor = '#fbcfe8';
+            else if (fromMatch[1].includes('green')) fromColor = '#d1fae5';
+            else if (fromMatch[1].includes('orange')) fromColor = '#ffedd5';
+            else if (fromMatch[1].includes('purple')) fromColor = '#ede9fe';
+            else if (fromMatch[1].includes('indigo')) fromColor = '#e0e7ff';
+            else if (fromMatch[1].includes('cyan')) fromColor = '#cffafe';
+            else if (fromMatch[1].includes('rose')) fromColor = '#ffe4e6';
+            else if (fromMatch[1].includes('yellow')) fromColor = '#fef9c3';
           }
-          
-          return { background: `linear-gradient(to right, ${fromColor}, ${toColor})` };
         }
+        
+        // Extract to color
+        if (value.includes('to-[')) {
+          const toMatch = value.match(/to-\[(.*?)\]/);
+          if (toMatch && toMatch[1]) {
+            toColor = toMatch[1];
+          }
+        } else if (value.includes('to-')) {
+          const toMatch = value.match(/to-([a-zA-Z0-9-]+)/);
+          if (toMatch && toMatch[1]) {
+            // Handle Tailwind color classes
+            if (toMatch[1].includes('blue')) toColor = '#bfdbfe';
+            else if (toMatch[1].includes('pink')) toColor = '#f9a8d4';
+            else if (toMatch[1].includes('green')) toColor = '#a7f3d0';
+            else if (toMatch[1].includes('orange')) toColor = '#fdba74';
+            else if (toMatch[1].includes('purple')) toColor = '#ddd6fe';
+            else if (toMatch[1].includes('indigo')) toColor = '#c7d2fe';
+            else if (toMatch[1].includes('cyan')) toColor = '#a5f3fc';
+            else if (toMatch[1].includes('rose')) toColor = '#fda4af';
+            else if (toMatch[1].includes('yellow')) toColor = '#fde68a';
+          }
+        }
+        
+        return { background: `linear-gradient(to right, ${fromColor}, ${toColor})` };
       }
+      
       return { background: `linear-gradient(to right, #f5f0e8, #e6d9c2)` };
-    } else {
+    } else if (type === "image" && value) {
       return { backgroundImage: `url(${value})`, backgroundSize: 'cover', backgroundPosition: 'center' };
     }
+    
+    return {};
   };
 
   // Determine the frame style based on selected template

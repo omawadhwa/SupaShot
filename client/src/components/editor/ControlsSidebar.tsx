@@ -1,19 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { EditorState } from "@/types";
 import ColorPicker from "./ColorPicker";
 import { 
   Palette, 
   PanelBottom, 
   BoxSelect,
-  Layers, 
-  Type, 
-  ChevronDown, 
-  ChevronRight, 
   Droplets, 
   Wand2,
   Download,
   Grid3X3,
-  DownloadCloud,
   Sliders,
   ImageIcon
 } from "lucide-react";
@@ -52,8 +47,6 @@ const ControlsSidebar: React.FC<ControlsSidebarProps> = ({
   editorState,
   updateEditorState
 }) => {
-  const [activeTab, setActiveTab] = useState("style");
-
   const handleColorTypeChange = (type: "transparent" | "solid" | "gradient" | "image") => {
     updateEditorState({
       background: {
@@ -131,6 +124,39 @@ const ControlsSidebar: React.FC<ControlsSidebarProps> = ({
     });
   };
 
+  const handleShadowBlurChange = (value: number[]) => {
+    updateEditorState({
+      shadow: {
+        ...editorState.shadow,
+        position: {
+          ...editorState.shadow.position,
+          blur: value[0]
+        }
+      }
+    });
+  };
+
+  const handleShadowSpreadChange = (value: number[]) => {
+    updateEditorState({
+      shadow: {
+        ...editorState.shadow,
+        position: {
+          ...editorState.shadow.position,
+          spread: value[0]
+        }
+      }
+    });
+  };
+
+  const handleShadowColorChange = (color: string) => {
+    updateEditorState({
+      shadow: {
+        ...editorState.shadow,
+        color
+      }
+    });
+  };
+
   // Solid colors swatches
   const colorSwatches = [
     "#ffffff", "#f8fafc", "#f1f5f9", "#e2e8f0", "#cbd5e1",
@@ -147,54 +173,72 @@ const ControlsSidebar: React.FC<ControlsSidebarProps> = ({
   const isGradientSelected = (gradient: string) => {
     return editorState.background.type === "gradient" && editorState.background.value === gradient;
   };
+  
+  // Convert Tailwind gradient format to CSS gradient
+  const getGradientBackground = (gradientValue: string) => {
+    let fromColor = '#f5f0e8';
+    let toColor = '#e6d9c2';
+    
+    // Extract from color
+    if (gradientValue.includes('from-[')) {
+      const fromMatch = gradientValue.match(/from-\[(.*?)\]/);
+      if (fromMatch && fromMatch[1]) {
+        fromColor = fromMatch[1];
+      }
+    } else if (gradientValue.includes('from-')) {
+      const fromMatch = gradientValue.match(/from-([a-zA-Z0-9-]+)/);
+      if (fromMatch && fromMatch[1]) {
+        // Handle Tailwind color classes
+        if (fromMatch[1].includes('blue')) fromColor = '#dbeafe';
+        else if (fromMatch[1].includes('pink')) fromColor = '#fbcfe8';
+        else if (fromMatch[1].includes('green')) fromColor = '#d1fae5';
+        else if (fromMatch[1].includes('orange')) fromColor = '#ffedd5';
+        else if (fromMatch[1].includes('purple')) fromColor = '#ede9fe';
+        else if (fromMatch[1].includes('indigo')) fromColor = '#e0e7ff';
+        else if (fromMatch[1].includes('cyan')) fromColor = '#cffafe';
+        else if (fromMatch[1].includes('rose')) fromColor = '#ffe4e6';
+        else if (fromMatch[1].includes('yellow')) fromColor = '#fef9c3';
+      }
+    }
+    
+    // Extract to color
+    if (gradientValue.includes('to-[')) {
+      const toMatch = gradientValue.match(/to-\[(.*?)\]/);
+      if (toMatch && toMatch[1]) {
+        toColor = toMatch[1];
+      }
+    } else if (gradientValue.includes('to-')) {
+      const toMatch = gradientValue.match(/to-([a-zA-Z0-9-]+)/);
+      if (toMatch && toMatch[1]) {
+        // Handle Tailwind color classes
+        if (toMatch[1].includes('blue')) toColor = '#bfdbfe';
+        else if (toMatch[1].includes('pink')) toColor = '#f9a8d4';
+        else if (toMatch[1].includes('green')) toColor = '#a7f3d0';
+        else if (toMatch[1].includes('orange')) toColor = '#fdba74';
+        else if (toMatch[1].includes('purple')) toColor = '#ddd6fe';
+        else if (toMatch[1].includes('indigo')) toColor = '#c7d2fe';
+        else if (toMatch[1].includes('cyan')) toColor = '#a5f3fc';
+        else if (toMatch[1].includes('rose')) toColor = '#fda4af';
+        else if (toMatch[1].includes('yellow')) toColor = '#fde68a';
+      }
+    }
+    
+    return `linear-gradient(to right, ${fromColor}, ${toColor})`;
+  };
 
   return (
-    <div className="h-full bg-white overflow-hidden flex flex-col">
-      {/* Controls header */}
-      <div className="border-b border-gray-200 p-3 flex justify-between items-center">
-        <div className="flex items-center">
-          <Sliders className="h-5 w-5 text-[#10b981] mr-2" />
-          <span className="font-medium text-gray-800">Style Controls</span>
-        </div>
-        <Badge 
-          variant="outline" 
-          className="text-xs bg-gray-100 text-gray-700"
-        >
-          Pro Features
-        </Badge>
-      </div>
-      
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full rounded-none bg-white border-b">
-            <TabsTrigger value="style" className="flex-1 text-xs data-[state=active]:border-b-2 data-[state=active]:border-[#10b981]">
-              <Palette className="h-4 w-4 mr-1" />
-              <span>Style</span>
-            </TabsTrigger>
-            <TabsTrigger value="effects" className="flex-1 text-xs data-[state=active]:border-b-2 data-[state=active]:border-[#10b981]">
-              <Wand2 className="h-4 w-4 mr-1" />
-              <span>Effects</span>
-            </TabsTrigger>
-            <TabsTrigger value="export" className="flex-1 text-xs data-[state=active]:border-b-2 data-[state=active]:border-[#10b981]">
-              <Download className="h-4 w-4 mr-1" />
-              <span>Export</span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-      
-      {/* Controls content */}
-      <div className="overflow-y-auto flex-grow p-4">
-        {activeTab === "style" && (
-          <div className="space-y-6">
-            {/* Background section */}
-            <div className="space-y-3">
-              <div className="flex items-center mb-1">
+    <div className="h-full bg-white overflow-y-auto">
+      <div className="p-4 space-y-4">
+        <Accordion type="single" collapsible defaultValue="background" className="w-full">
+          {/* Background Accordion */}
+          <AccordionItem value="background" className="border rounded-lg mb-3">
+            <AccordionTrigger className="px-4 py-2 hover:no-underline">
+              <div className="flex items-center">
                 <BoxSelect className="h-4 w-4 text-[#10b981] mr-2" />
                 <h3 className="text-sm font-medium text-gray-800">Background</h3>
               </div>
-              
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
               <div className="space-y-3">
                 <Tabs 
                   defaultValue="transparent"
@@ -238,11 +282,14 @@ const ControlsSidebar: React.FC<ControlsSidebarProps> = ({
                       {gradients.map((gradient) => (
                         <button
                           key={gradient.id}
-                          className={`h-12 rounded-md cursor-pointer bg-gradient-to-r ${gradient.value} transition-all ${
+                          className={`h-12 rounded-md cursor-pointer transition-all ${
                             isGradientSelected(gradient.value) ? 
                             'ring-2 ring-[#10b981] ring-offset-1' : 
                             'border border-gray-200'
                           }`}
+                          style={{
+                            background: getGradientBackground(gradient.value)
+                          }}
                           onClick={() => handleColorSelect(gradient.value)}
                         >
                           <span className="text-xs font-medium text-gray-700 bg-white bg-opacity-70 px-2 py-0.5 rounded">
@@ -265,15 +312,18 @@ const ControlsSidebar: React.FC<ControlsSidebarProps> = ({
                   </TabsContent>
                 </Tabs>
               </div>
-            </div>
-            
-            {/* Border section */}
-            <div className="space-y-3 pt-2 border-t border-gray-100">
-              <div className="flex items-center mb-1">
+            </AccordionContent>
+          </AccordionItem>
+          
+          {/* Border Accordion */}
+          <AccordionItem value="border" className="border rounded-lg mb-3">
+            <AccordionTrigger className="px-4 py-2 hover:no-underline">
+              <div className="flex items-center">
                 <PanelBottom className="h-4 w-4 text-[#10b981] mr-2" />
                 <h3 className="text-sm font-medium text-gray-800">Border</h3>
               </div>
-              
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-xs text-gray-500 mb-1">
@@ -311,11 +361,13 @@ const ControlsSidebar: React.FC<ControlsSidebarProps> = ({
                   />
                 </div>
               </div>
-            </div>
-            
-            {/* Shadow section */}
-            <div className="space-y-3 pt-2 border-t border-gray-100">
-              <div className="flex items-center justify-between mb-1">
+            </AccordionContent>
+          </AccordionItem>
+          
+          {/* Shadow Accordion */}
+          <AccordionItem value="shadow" className="border rounded-lg mb-3">
+            <AccordionTrigger className="px-4 py-2 hover:no-underline">
+              <div className="flex items-center justify-between w-full pr-2">
                 <div className="flex items-center">
                   <Droplets className="h-4 w-4 text-[#10b981] mr-2" />
                   <h3 className="text-sm font-medium text-gray-800">Shadow</h3>
@@ -323,9 +375,11 @@ const ControlsSidebar: React.FC<ControlsSidebarProps> = ({
                 <Switch 
                   checked={editorState.shadow.enabled}
                   onCheckedChange={handleShadowToggle}
+                  onClick={(e) => e.stopPropagation()}
                 />
               </div>
-              
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
               {editorState.shadow.enabled && (
                 <div className="space-y-4">
                   <div>
@@ -422,7 +476,7 @@ const ControlsSidebar: React.FC<ControlsSidebarProps> = ({
                     </div>
                   </div>
                   
-                  <div className="space-y-1">
+                  <div>
                     <div className="flex justify-between text-xs text-gray-500 mb-1">
                       <span>Blur</span>
                       <span>{editorState.shadow.position.blur}px</span>
@@ -430,134 +484,126 @@ const ControlsSidebar: React.FC<ControlsSidebarProps> = ({
                     <Slider 
                       value={[editorState.shadow.position.blur]} 
                       min={0} 
+                      max={100} 
+                      step={1}
+                      onValueChange={handleShadowBlurChange}
+                    />
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <span>Spread</span>
+                      <span>{editorState.shadow.position.spread}px</span>
+                    </div>
+                    <Slider 
+                      value={[editorState.shadow.position.spread]} 
+                      min={0} 
                       max={50} 
                       step={1}
-                      onValueChange={(value) => 
-                        updateEditorState({
-                          shadow: {
-                            ...editorState.shadow,
-                            position: {
-                              ...editorState.shadow.position,
-                              blur: value[0]
-                            }
-                          }
-                        })
-                      }
+                      onValueChange={handleShadowSpreadChange}
+                    />
+                  </div>
+                  
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Color</div>
+                    <ColorPicker 
+                      color={editorState.shadow.color} 
+                      onChange={handleShadowColorChange}
                     />
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-        
-        {activeTab === "effects" && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <h3 className="text-sm font-medium text-gray-800">Effects Library</h3>
-              <Badge variant="outline" className="text-xs">Pro</Badge>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-              {["Noise", "Glass", "Duotone", "Blur", "Gloss", "Grain", "Vintage", "3D"].map((effect) => (
-                <Button 
-                  key={effect} 
-                  variant="outline" 
-                  className="h-auto py-2 justify-start"
-                >
-                  <Wand2 className="h-4 w-4 mr-2 text-[#10b981]" />
-                  <span className="text-xs">{effect}</span>
-                </Button>
-              ))}
-            </div>
-            
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 mt-4">
-              <h3 className="text-sm font-medium text-gray-800 mb-2">Quick Adjustments</h3>
-              <div className="space-y-3">
-                {["Brightness", "Contrast", "Saturation", "Blur"].map((adjust) => (
-                  <div key={adjust}>
-                    <div className="flex justify-between text-xs text-gray-500 mb-1">
-                      <span>{adjust}</span>
-                      <span>100%</span>
-                    </div>
-                    <Slider value={[100]} min={0} max={200} step={1} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {activeTab === "export" && (
-          <div className="space-y-4">
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h3 className="text-sm font-medium text-gray-800 mb-3">Export Settings</h3>
-              
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Format</label>
-                  <Select defaultValue="png">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select format" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="png">PNG</SelectItem>
-                      <SelectItem value="jpg">JPG</SelectItem>
-                      <SelectItem value="webp">WebP</SelectItem>
-                      <SelectItem value="svg">SVG (Pro)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Quality</label>
-                  <Slider value={[80]} min={0} max={100} step={1} />
-                </div>
-                
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">Size</label>
-                  <Select defaultValue="original">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select size" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="original">Original Size</SelectItem>
-                      <SelectItem value="1x">1× (Standard)</SelectItem>
-                      <SelectItem value="2x">2× (Retina)</SelectItem>
-                      <SelectItem value="custom">Custom Size</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <Button className="w-full mt-4 bg-[#10b981] hover:bg-[#0d9669] text-white gap-2">
-                <DownloadCloud className="h-4 w-4" />
-                <span>Export Image</span>
-              </Button>
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-800">Quick Export</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" className="justify-start gap-2">
-                  <Download className="h-4 w-4" />
-                  <span className="text-xs">PNG</span>
-                </Button>
-                <Button variant="outline" className="justify-start gap-2">
-                  <Download className="h-4 w-4" />
-                  <span className="text-xs">JPG</span>
-                </Button>
-              </div>
-            </div>
-            
-            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 mt-2">
+            </AccordionContent>
+          </AccordionItem>
+          
+          {/* Effects Accordion */}
+          <AccordionItem value="effects" className="border rounded-lg mb-3">
+            <AccordionTrigger className="px-4 py-2 hover:no-underline">
               <div className="flex items-center">
-                <Badge className="bg-[#10b981] mr-2">PRO</Badge>
-                <span className="text-xs text-gray-700">Access advanced export options</span>
+                <Wand2 className="h-4 w-4 text-[#10b981] mr-2" />
+                <h3 className="text-sm font-medium text-gray-800">Effects</h3>
               </div>
-            </div>
-          </div>
-        )}
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <div className="p-4 text-center border border-dashed border-gray-300 rounded-lg">
+                <Wand2 className="h-10 w-10 text-gray-300 mx-auto mb-2" />
+                <h3 className="text-sm font-medium text-gray-800 mb-1">Effects Coming Soon</h3>
+                <p className="text-xs text-gray-500">
+                  Advanced image effects will be available in the next update.
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
+          {/* Export Accordion */}
+          <AccordionItem value="export" className="border rounded-lg">
+            <AccordionTrigger className="px-4 py-2 hover:no-underline">
+              <div className="flex items-center">
+                <Download className="h-4 w-4 text-[#10b981] mr-2" />
+                <h3 className="text-sm font-medium text-gray-800">Export</h3>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Format</span>
+                    <Select defaultValue="png">
+                      <SelectTrigger className="w-24 h-8">
+                        <SelectValue placeholder="Format" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="png">PNG</SelectItem>
+                        <SelectItem value="jpg">JPG</SelectItem>
+                        <SelectItem value="webp">WebP</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Quality</span>
+                    <Select defaultValue="high">
+                      <SelectTrigger className="w-24 h-8">
+                        <SelectValue placeholder="Quality" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Size</span>
+                    <Select defaultValue="original">
+                      <SelectTrigger className="w-24 h-8">
+                        <SelectValue placeholder="Size" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="original">Original</SelectItem>
+                        <SelectItem value="large">Large</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="small">Small</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <Button className="w-full bg-[#10b981] hover:bg-[#0d9669] gap-2">
+                  <Download className="h-4 w-4" />
+                  <span>Export Image</span>
+                </Button>
+                
+                <div className="text-center">
+                  <p className="text-xs text-gray-500">
+                    Upgrade to PRO for watermark-free exports and more formats.
+                  </p>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </div>
   );
