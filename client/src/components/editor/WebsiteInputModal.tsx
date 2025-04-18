@@ -139,7 +139,7 @@ const WebsiteInputModal: React.FC<WebsiteInputModalProps> = ({
           
           <div>
             <Label className="text-sm mb-1.5 block">Options</Label>
-            <div className="flex items-center justify-between p-3 border rounded-md bg-gray-50">
+            <div className="flex items-center justify-between p-3 border rounded-md bg-muted/30">
               <span className="text-sm">Full Page</span>
               <Switch 
                 checked={fullPage}
@@ -156,7 +156,7 @@ const WebsiteInputModal: React.FC<WebsiteInputModalProps> = ({
               <Badge 
                 key={website.name}
                 variant="outline" 
-                className="cursor-pointer hover:bg-gray-100"
+                className="cursor-pointer hover:bg-muted"
                 onClick={() => setUrl(website.url)}
               >
                 {website.name}
@@ -165,11 +165,11 @@ const WebsiteInputModal: React.FC<WebsiteInputModalProps> = ({
           </div>
         </div>
         
-        <div className="bg-gray-50 -mx-6 px-6 py-4 mt-6 space-y-3">
+        <div className="bg-muted/30 border-t border-border -mx-6 px-6 py-4 mt-6 space-y-3">
           <div className="flex items-center text-sm">
-            <Sparkles className="h-4 w-4 text-[#10b981] mr-2" />
+            <Sparkles className="h-4 w-4 text-primary mr-2" />
             <span className="font-medium">Pro Tip:</span>
-            <span className="text-gray-500 ml-2">The screenshot will be instantly available to edit</span>
+            <span className="text-muted-foreground ml-2">The screenshot will be instantly available to edit</span>
           </div>
           
           <DialogFooter className="pt-2">
@@ -178,13 +178,14 @@ const WebsiteInputModal: React.FC<WebsiteInputModalProps> = ({
               variant="outline" 
               onClick={onCancel}
               disabled={isLoading}
+              className="rounded-full"
             >
               Cancel
             </Button>
             <Button 
               type="submit"
-              className="bg-[#10b981] hover:bg-[#0d9669] text-white gap-1"
               disabled={isLoading}
+              className="rounded-full gap-1"
             >
               {isLoading ? (
                 "Capturing..."
