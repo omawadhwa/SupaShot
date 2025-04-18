@@ -77,7 +77,7 @@ const WebsiteInputModal: React.FC<WebsiteInputModalProps> = ({
     <div>
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
-          <Globe className="h-5 w-5 text-[#10b981]" />
+          <Globe className="h-5 w-5 text-primary" />
           <span>Capture Website Screenshot</span>
         </DialogTitle>
         <DialogDescription>
@@ -97,7 +97,7 @@ const WebsiteInputModal: React.FC<WebsiteInputModalProps> = ({
           <Label htmlFor="url" className="text-base font-medium mb-2 block">Website URL</Label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Globe className="h-4 w-4 text-gray-400" />
+              <Globe className="h-4 w-4 text-muted-foreground" />
             </div>
             <Input
               id="url"

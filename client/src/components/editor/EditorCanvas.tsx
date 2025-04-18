@@ -378,10 +378,10 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="w-full h-full flex items-center justify-center p-6">
       <div
         id="screenshot-canvas"
-        className="bg-white shadow-md rounded-lg"
+        className="bg-card shadow-md rounded-xl border border-border overflow-hidden"
         style={{
           ...getBackgroundStyle(),
           maxWidth: "900px",
@@ -391,50 +391,8 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
           transition: "transform 0.2s ease-out"
         }}
       >
-        {/* Canvas header with zoom controls */}
-        <div className="p-3 border-b border-gray-200 flex justify-between items-center">
-          <div className="flex items-center gap-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Undo className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Undo</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Redo className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Redo</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs px-2 py-0 h-6">Zoom: {zoomLevel}%</Badge>
-            <Button variant="ghost" size="icon" className="h-8 w-8"
-              onClick={() => setZoomLevel(Math.min(zoomLevel + 10, 200))}>
-              <ZoomIn className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8"
-              onClick={() => setZoomLevel(Math.max(zoomLevel - 10, 50))}>
-              <ZoomOut className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        
         {/* Content area */}
-        <div className="p-10 relative">
+        <div className="p-6 relative">
           {editorState.image ? (
             <div>
               <div 
@@ -442,8 +400,9 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
                   ...getFrameStyle(),
                   boxShadow: shadowStyle,
                   borderRadius: `${editorState.border.radius}px`,
-                  overflow: "hidden"
+                  overflow: "hidden",
                 }}
+                className="bg-card"
               >
                 {getBrowserChrome()}
                 <div>
@@ -452,18 +411,18 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
               </div>
             </div>
           ) : (
-            <div>
+            <div className="py-6">
               <DropZone onFileUpload={handleFileUpload} />
               
-              <div className="flex mt-4 gap-2 justify-center">
+              <div className="flex mt-4 gap-3 justify-center">
                 <Dialog open={websiteModalOpen} onOpenChange={setWebsiteModalOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="flex gap-2 items-center">
+                    <Button variant="outline" className="rounded-full flex gap-2 items-center">
                       <Globe className="h-4 w-4" />
                       <span>Capture Website</span>
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="bg-card">
                     <WebsiteInputModal 
                       onCapture={handleWebsiteCapture} 
                       onCancel={() => setWebsiteModalOpen(false)} 
@@ -472,8 +431,8 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
                 </Dialog>
                 
                 <Button 
-                  variant="outline" 
-                  className="flex gap-2 items-center"
+                  variant="secondary" 
+                  className="rounded-full flex gap-2 items-center"
                   onClick={() => onImageUpload(mockScreenshot)}
                 >
                   <ImageIcon className="h-4 w-4" />
