@@ -112,35 +112,41 @@ const Editor: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-gray-50 flex flex-col">
-      {/* Header */}
-      <div className="w-full bg-white p-3 border-b flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800">SupaShot Editor</h1>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2">
-            <Share2 size={16} />
-            <span>Share</span>
-          </Button>
-          <Button className="bg-[#10b981] hover:bg-[#0d9669] text-white gap-2">
-            <Save size={16} />
-            <span>Save Project</span>
-          </Button>
-        </div>
-      </div>
-      
+    <div className="h-[calc(100vh-64px)] bg-gray-50 fixed top-16 left-0 right-0 bottom-0 flex flex-col">
       {/* Main content area */}
-      <div className="flex-grow flex overflow-hidden">
+      <div className="flex h-full">
         {/* Left sidebar - fixed width */}
-        <div className="w-64 border-r border-gray-200 bg-white">
-          <FrameTemplatesSidebar
-            selectedTemplate={editorState.frameTemplate}
-            onSelectTemplate={handleFrameTemplateChange}
-          />
+        <div className="w-64 border-r border-gray-200 bg-white h-full overflow-hidden flex flex-col">
+          <div className="p-3 border-b border-gray-200 bg-white">
+            <h1 className="font-medium text-gray-800">Frame Templates</h1>
+          </div>
+          <div className="overflow-auto flex-grow">
+            <FrameTemplatesSidebar
+              selectedTemplate={editorState.frameTemplate}
+              onSelectTemplate={handleFrameTemplateChange}
+            />
+          </div>
         </div>
         
         {/* Center area - editor canvas */}
-        <div className="flex-grow flex flex-col">
-          <div className="flex-grow overflow-auto p-6 flex items-center justify-center">
+        <div className="flex-grow flex flex-col relative">
+          {/* Top header */}
+          <div className="p-3 border-b bg-white flex justify-between items-center">
+            <h1 className="text-xl font-bold text-gray-800">SupaShot Editor</h1>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" className="gap-2">
+                <Share2 size={16} />
+                <span>Share</span>
+              </Button>
+              <Button className="bg-[#10b981] hover:bg-[#0d9669] text-white gap-2">
+                <Save size={16} />
+                <span>Save Project</span>
+              </Button>
+            </div>
+          </div>
+          
+          {/* Editor canvas - fixed size, no scroll */}
+          <div className="flex-grow flex items-center justify-center overflow-hidden">
             <EditorCanvas
               editorState={editorState}
               onImageUpload={handleImageUpload}
@@ -148,13 +154,13 @@ const Editor: React.FC = () => {
             />
           </div>
           
-          {/* Bottom toolbar */}
-          <div className="p-3 border-t flex justify-center gap-3 bg-white">
+          {/* Bottom floating toolbar */}
+          <div className="sticky bottom-4 z-30 mx-auto mt-auto flex max-w-[860px] select-none items-center gap-1.5 gap-y-3 rounded-[34px] border-2 border-gray-200 bg-white p-2 shadow-md">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleReset} 
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 rounded-full"
             >
               <RotateCcw className="h-4 w-4" />
               <span>Reset</span>
@@ -163,7 +169,7 @@ const Editor: React.FC = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 rounded-full"
             >
               <Crop className="h-4 w-4" />
               <span>Crop</span>
@@ -172,7 +178,7 @@ const Editor: React.FC = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 rounded-full"
             >
               <Maximize className="h-4 w-4" />
               <span>Fit</span>
@@ -181,7 +187,7 @@ const Editor: React.FC = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 rounded-full"
               onClick={handleAutoEnhance}
             >
               <Wand2 className="h-4 w-4 text-[#10b981]" />
@@ -190,7 +196,7 @@ const Editor: React.FC = () => {
             
             <Button 
               size="sm" 
-              className="flex items-center gap-1 bg-[#10b981] hover:bg-[#0d9669] text-white"
+              className="flex items-center gap-1 bg-[#10b981] hover:bg-[#0d9669] text-white rounded-full"
               onClick={handleExport}
               disabled={!editorState.image}
             >
@@ -201,11 +207,16 @@ const Editor: React.FC = () => {
         </div>
         
         {/* Right sidebar - fixed width */}
-        <div className="w-80 border-l border-gray-200 bg-white">
-          <ControlsSidebar
-            editorState={editorState}
-            updateEditorState={updateEditorState}
-          />
+        <div className="w-80 border-l border-gray-200 bg-white h-full overflow-hidden flex flex-col">
+          <div className="p-3 border-b border-gray-200 bg-white">
+            <h1 className="font-medium text-gray-800">Style Controls</h1>
+          </div>
+          <div className="overflow-auto flex-grow">
+            <ControlsSidebar
+              editorState={editorState}
+              updateEditorState={updateEditorState}
+            />
+          </div>
         </div>
       </div>
     </div>
