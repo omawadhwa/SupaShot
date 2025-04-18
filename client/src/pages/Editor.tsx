@@ -50,7 +50,7 @@ const Editor: React.FC = () => {
 
   const handleReset = () => {
     setEditorState({
-      image: null,
+      image: undefined,
       frameTemplate: "standard",
       background: {
         type: "gradient",
