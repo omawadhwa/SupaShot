@@ -7,23 +7,23 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { Menu, ImageIcon, Bell, User } from "lucide-react";
+import { Menu, ImageIcon, Bell, User, Sparkles } from "lucide-react";
 
 const Navbar: React.FC = () => {
   const [location] = useLocation();
 
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-white shadow-md sticky top-0 z-50">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <ImageIcon className="h-6 w-6 text-[#10b981] mr-2" />
+              <Sparkles className="h-6 w-6 text-[#10b981] mr-2" />
               <Link href="/">
-                <span className="font-bold text-lg cursor-pointer">ScreenshotBeautifier</span>
+                <span className="font-bold text-xl cursor-pointer text-gray-800 hover:text-[#10b981] transition-colors">SupaShot</span>
               </Link>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <div className="hidden sm:ml-8 sm:flex sm:space-x-8">
               <Link href="/editor">
                 <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                   location === "/editor" 
@@ -34,26 +34,31 @@ const Navbar: React.FC = () => {
                 </a>
               </Link>
               <Link href="/templates">
-                <a className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                  location === "/templates" 
+                    ? "border-[#10b981] text-gray-900" 
+                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                }`}>
                   Templates
                 </a>
               </Link>
               <Link href="/examples">
-                <a className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                  location === "/examples" 
+                    ? "border-[#10b981] text-gray-900" 
+                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                }`}>
                   Examples
-                </a>
-              </Link>
-              <Link href="/pricing">
-                <a className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                  Pricing
                 </a>
               </Link>
             </div>
           </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-500">
-              <Bell className="h-5 w-5" />
-            </Button>
+          <div className="hidden sm:ml-6 sm:flex sm:items-center gap-3">
+            <Link href="/editor">
+              <Button className="bg-[#10b981] hover:bg-[#0d9669] text-white">
+                Open Editor
+              </Button>
+            </Link>
             <div className="ml-3 relative">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -89,9 +94,6 @@ const Navbar: React.FC = () => {
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Link href="/examples">Examples</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href="/pricing">Pricing</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

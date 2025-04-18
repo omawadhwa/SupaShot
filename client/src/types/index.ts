@@ -16,7 +16,7 @@ export interface FrameProps {
 
 // Editor settings types
 export interface EditorState {
-  image: string | null;
+  image: string | undefined;
   frameTemplate: string;
   background: Background;
   border: Border;
