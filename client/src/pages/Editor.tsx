@@ -131,7 +131,7 @@ const Editor: React.FC = () => {
         {/* Center area - editor canvas */}
         <div className="flex-grow flex flex-col relative">
           {/* Top header */}
-          <div className="p-3 border-b bg-white flex justify-between items-center">
+          {/* <div className="p-3 border-b bg-white flex justify-between items-center">
             <h1 className="text-xl font-bold text-gray-800">SupaShot Editor</h1>
             <div className="flex items-center gap-3">
               <Button variant="outline" className="gap-2">
@@ -143,7 +143,7 @@ const Editor: React.FC = () => {
                 <span>Save Project</span>
               </Button>
             </div>
-          </div>
+          </div> */}
           
           {/* Editor canvas - fixed size, no scroll */}
           <div className="flex-grow flex items-center justify-center overflow-hidden">
